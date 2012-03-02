@@ -13,8 +13,8 @@ from Tkinter import *
 
 # global variables
 # algorithm variables
-iterations = 0
-roughness = 0.0
+iterations = 1
+roughness = 1.0
 
 # tk variables
 canvas_width = 300
@@ -133,9 +133,11 @@ if __name__ == '__main__':
     # add scales for roughness and num iterations
     roughness_scale = Scale(root, from_ = 0.0, to = 1.0, resolution = .05,
                             orient = HORIZONTAL, length = 300, command=update_roughness)
+    roughness_scale.set(roughness)
     roughness_scale.pack()
     iterations_scale = Scale(root, from_ = 0, to = 10, orient = HORIZONTAL,
                              length = 300, command=update_iterations)
+    iterations_scale.set(iterations)
     iterations_scale.pack()
 
     # add quit button
