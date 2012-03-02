@@ -68,11 +68,15 @@ def generate(it, points, rand_range):
     return generate(it-1, new_points, rand_range * (2**-r))
 
 if __name__ == '__main__':
+    # set up window
     root = Tk()
+    root.wm_title("Midpoint Displacement")
 
+    # add canvas (to draw lines on)
     canvas = Canvas(root, width=canvas_width, height=canvas_height)
     canvas.pack()
 
+    # add scales for roughness and num iterations
     roughness_scale = Scale(root, from_ = 0.0, to = 1.0, resolution = .05,
                             orient = HORIZONTAL, length = 300, command=update_roughness)
     roughness_scale.pack()
@@ -80,7 +84,10 @@ if __name__ == '__main__':
     iterations_scale = Scale(root, from_ = 0, to = 10, orient = HORIZONTAL,
                              length = 300, command=update_iterations)
     iterations_scale.pack()
+
+    # add quit button
     button = Button(root, text="Quit", command=quit)
     button.pack()
 
+    # start Tk main loop
     root.mainloop()
