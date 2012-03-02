@@ -1,71 +1,125 @@
 #!/usr/bin/env python
-
-from Tkinter import *
+"""
+An example of midpoint displacement procedural generation.
+The algorithm is fairly simple:
+for number iterations:
+  for each line segment:
+     add new point at midpoint (+ random_val in y position)
+  divide random_val by (2 * 'roughness')
+"""
 
 import random
+from Tkinter import *
 
+# global variables
+# algorithm variables
 iterations = 0
 roughness = 0.0
 
+# tk variables
 canvas_width = 300
 canvas_height = 200
-
 canvas = 0
 
 def draw_lines(c, points):
+    """
+    Draw lines on a Tk canvas
+     c - Tk canvas
+     points - list of (x,y) pairs (sorted)
+    """
     # make sure we start with a clean slate
     c.delete(ALL)
 
-    # now draw them
-    global canvas_width
+    # get width and height scalings
     w = canvas_width
+    h = get_scaled_height(canvas_height, points)
 
-    global canvas_height
-    max_height = canvas_height
-    for i in points:
-        if i[1] * canvas_height > max_height:
-            max_height = i[1] * canvas_height
-    h = canvas_height * canvas_height / max_height
-
+    # now draw them
     for i in xrange(len(points) - 1):
         c.create_line(w * points[i][0],     canvas_height - h * points[i][1],
                       w * points[i + 1][0], canvas_height - h * points[i + 1][1])
 
+def get_scaled_height(original_height, points):
+    """
+    Returns a scaled height (/multiplier) given an original height
+    and a list of (x,y) pairs
+     original_height - max possible height
+     points - (x,y) pairs
+     returns a scalar such that scalar * max(points)  == original_height
+    """
+    # sort the values
+    sorted_points = sorted(points, key=lambda point: point[1])
+
+    # get last item
+    max_height = sorted_points[-1][1]
+
+    # make sure we aren't overzealous
+    if (max_height < 1.0):
+        max_height = 1.0
+
+    return original_height / max_height
+
 def update_iterations(iters):
+    """
+    Tk Scale callback that updates the number of iterations
+     iters - number of iterations (in string format)
+    """
     global iterations
     iterations = int(iters)
-    global canvas
-    generate_horizon(canvas)
+
+    # update canvas
+    points = midpoint_displacement()
+    draw_lines(canvas, points)
 
 def update_roughness(rough):
+    """
+    Tk Scale callback that updates the roughness
+     rough - roughness (in string format)
+    """
     global roughness
     roughness = float(rough)
-    global canvas
-    generate_horizon(canvas)
 
-def generate_horizon(c):
+    # update canvas
+    points = midpoint_displacement()
+    draw_lines(canvas, points)
+
+def midpoint_displacement():
+    """
+    Generate a midpoint displacement line based on parameters set via Tk
+     returns a list of (x,y) pairs
+    """
+    # clamp x values at [0.0 and 1.0]
     begin_points = [[0.0, 0.0],[1.0, 0.0]]
-    points = generate(iterations, begin_points, 1.0)
-    draw_lines(c, points)
+    return midpoint_displacement_recurse(iterations, begin_points, 1.0, roughness)
 
-def generate(it, points, rand_range):
+def midpoint_displacement_recurse(it, points, rand_range, r):
+    """
+    One iteration of midpoint displacement.
+     it - number of iterations left
+     points - current list of (x,y) points
+     rand_range - current possible range of randomness
+     r - 'roughness' [constant]
+     returns a generated list of (x,y) pairs based on parameters
+      note: for the (x,y) pairs, 0 <= x <= 1.0 and 0 <= y
+    """
+    # base case of recursion
     if it == 0:
         return points
-#    sorted(points, key=lambda point: point[0])
 
+    # iterate through all of the line segments
     new_points = [points[0]]
     for i in xrange(len(points)-1):
+        # calculate a new point
         calc_point = [(points[i+1][0] + points[i][0])/2,
                       (points[i+1][1] + points[i][1])/2 +
                       random.uniform(0, rand_range)]
 
+        # add the new point to the list (as well as the old point
         new_points.append(calc_point)
         new_points.append(points[i+1])
 
-    global roughness
-    r = roughness
-
-    return generate(it-1, new_points, rand_range * (2**-r))
+    # recurse and return
+    return midpoint_displacement_recurse(it-1, new_points, rand_range * (2**-r), r)
 
 if __name__ == '__main__':
     # set up window
@@ -80,7 +134,6 @@ if __name__ == '__main__':
     roughness_scale = Scale(root, from_ = 0.0, to = 1.0, resolution = .05,
                             orient = HORIZONTAL, length = 300, command=update_roughness)
     roughness_scale.pack()
-
     iterations_scale = Scale(root, from_ = 0, to = 10, orient = HORIZONTAL,
                              length = 300, command=update_iterations)
     iterations_scale.pack()
