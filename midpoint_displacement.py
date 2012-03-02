@@ -59,27 +59,12 @@ def get_scaled_height(original_height, points):
 
     return original_height / max_height
 
-def update_iterations(iters):
+def update_canvas(not_needed):
     """
-    Tk Scale callback that updates the number of iterations
-     iters - number of iterations (in string format)
+    Tk Scale callback that updates the canvas based on current
+    values of the scales
+     not_needed - just that
     """
-    global iterations
-    iterations = int(iters)
-
-    # update canvas
-    points = midpoint_displacement()
-    draw_lines(canvas, points)
-
-def update_roughness(rough):
-    """
-    Tk Scale callback that updates the roughness
-     rough - roughness (in string format)
-    """
-    global roughness
-    roughness = float(rough)
-
-    # update canvas
     points = midpoint_displacement()
     draw_lines(canvas, points)
 
@@ -88,9 +73,13 @@ def midpoint_displacement():
     Generate a midpoint displacement line based on parameters set via Tk
      returns a list of (x,y) pairs
     """
+    # get values from Tk variables
+    it = iterations.get()
+    r = roughness.get()
+
     # clamp x values at [0.0 and 1.0]
     begin_points = [[0.0, 0.0],[1.0, 0.0]]
-    return midpoint_displacement_recurse(iterations, begin_points, 1.0, roughness)
+    return midpoint_displacement_recurse(it, begin_points, 1.0, r)
 
 def midpoint_displacement_recurse(it, points, rand_range, r):
     """
@@ -132,22 +121,33 @@ if __name__ == '__main__':
     root.wm_title("Midpoint Displacement")
 
     # add canvas (to draw lines on)
-    canvas = Canvas(root, width=canvas_width, height=canvas_height)
-    canvas.pack()
+    canvas = Canvas(root, width = canvas_width, height = canvas_height)
+    canvas.grid(row=0, columnspan = 2)
 
-    # add scales for roughness and num iterations
+    # add labels/scales for roughness and num iterations
+    roughness = DoubleVar()
+    roughness_label = Label(root, text = "Roughness: ")
+    roughness_label.grid(row = 1, column = 0, sticky = S)
     roughness_scale = Scale(root, from_ = 0.0, to = 1.0, resolution = .05,
-                            orient = HORIZONTAL, length = 300, command=update_roughness)
-    roughness_scale.set(roughness)
-    roughness_scale.pack()
-    iterations_scale = Scale(root, from_ = 0, to = 10, orient = HORIZONTAL,
-                             length = 300, command=update_iterations)
-    iterations_scale.set(iterations)
-    iterations_scale.pack()
+                            orient = HORIZONTAL, variable = roughness,
+                            length = canvas_width - 100,
+                            command = update_canvas)
+    roughness_scale.set(1.0)
+    roughness_scale.grid(row = 1, column = 1)
+
+    iterations = IntVar()
+    iterations_label = Label(root, text = "Iterations: ")
+    iterations_label.grid(row = 3, column = 0, sticky = S)
+    iterations_scale = Scale(root, from_ = 0, to = 10,
+                             orient = HORIZONTAL, variable = iterations,
+                             length = canvas_width - 100,
+                             command = update_canvas)
+    iterations_scale.set(1)
+    iterations_scale.grid(row = 3, column = 1)
 
     # add quit button
-    button = Button(root, text="Quit", command=quit)
-    button.pack()
+    button = Button(root, text="Quit", command = quit)
+    button.grid(row = 4, columnspan = 2)
 
     # start Tk main loop
     root.mainloop()
