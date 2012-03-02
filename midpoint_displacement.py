@@ -110,8 +110,10 @@ def midpoint_displacement_recurse(it, points, rand_range, r):
     new_points = [points[0]]
     for i in xrange(len(points)-1):
         # calculate a new point
-        calc_point = [(points[i+1][0] + points[i][0])/2,
-                      (points[i+1][1] + points[i][1])/2 +
+        avg_x = (points[i][0] + points[i+1][0])/2
+        avg_y = (points[i][1] + points[i+1][1])/2
+        calc_point = [avg_x,
+                      avg_y +
                       random.uniform(0, rand_range)]
 
         # add the new point to the list (as well as the old point
