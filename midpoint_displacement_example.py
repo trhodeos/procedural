@@ -8,7 +8,7 @@ for number iterations:
   divide random_val by (2 * 'roughness')
 """
 
-import random
+from procedural import midpoint_displacement
 from Tkinter import *
 
 # global variables
@@ -65,55 +65,10 @@ def update_canvas(not_needed):
     values of the scales
      not_needed - just that
     """
-    points = midpoint_displacement()
-    draw_lines(canvas, points)
-
-def midpoint_displacement():
-    """
-    Generate a midpoint displacement line based on parameters set via Tk
-     returns a list of (x,y) pairs
-    """
-    # get values from Tk variables
     it = iterations.get()
     r = roughness.get()
-
-    # clamp x values at [0.0 and 1.0]
-    begin_points = [[0.0, 0.0],[1.0, 0.0]]
-    return midpoint_displacement_recurse(it, begin_points, 1.0, r)
-
-def midpoint_displacement_recurse(it, points, rand_range, r):
-    """
-    One iteration of midpoint displacement.
-     it - number of iterations left
-     points - current list of (x,y) points
-     rand_range - current possible range of randomness
-     r - 'roughness' [constant]
-     returns a generated list of (x,y) pairs based on parameters
-      note: for the (x,y) pairs, 0 <= x <= 1.0 and 0 <= y
-    """
-    # base case of recursion
-    if it == 0:
-        return points
-
-    # iterate through all of the line segments
-    new_points = [points[0]]
-    for i in xrange(len(points)-1):
-        # calculate a new point
-        avg_x = (points[i][0] + points[i+1][0])/2
-        avg_y = (points[i][1] + points[i+1][1])/2
-        calc_point = [avg_x,
-                      avg_y +
-                      random.uniform(-rand_range, rand_range)]
-
-        # clamp the y value to be >= 0
-        calc_point[1] = max(calc_point[1], 0)
-
-        # add the new point to the list (as well as the old point
-        new_points.append(calc_point)
-        new_points.append(points[i+1])
-
-    # recurse and return
-    return midpoint_displacement_recurse(it-1, new_points, rand_range * (2**-r), r)
+    points = midpoint_displacement.run(it, r)
+    draw_lines(canvas, points)
 
 if __name__ == '__main__':
     # set up window
