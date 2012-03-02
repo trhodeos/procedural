@@ -10,7 +10,7 @@ roughness = 1.0
 
 # tk variables
 canvas_width = 300
-canvas_height = 200
+canvas_height = 300
 canvas = 0
 
 def draw_heightmap(c, map):
@@ -39,6 +39,22 @@ def draw_heightmap(c, map):
             c.create_rectangle(start_x, start_y,
                                end_x, end_y,
                                fill = color, width = 0)
+
+def initialize_map(s, seed):
+    """
+    Create and initialize map of size 's' with seed value in the corners
+     s - size of the square map
+     seed - initial value to be place in the corners
+    """
+    # initialize memory
+    map = [[0] * s for i in xrange(s)]
+
+    # set up seed values
+    map[ 0][ 0] = seed
+    map[ 0][-1] = seed
+    map[-1][ 0] = seed
+    map[-1][-1] = seed
+    return map
 
 if __name__ == '__main__':
     # set up window
@@ -69,16 +85,11 @@ if __name__ == '__main__':
     iterations_scale.grid(row = 3, column = 1)
 
     # add quit button
-    button = Button(root, text="Quit", command = quit)
+    button = Button(root, text = "Quit", command = quit)
     button.grid(row = 4, columnspan = 2)
 
     # testing grid draw-er
-    map = []
-    for j in xrange(0, 10):
-        map.append([])
-        for i in xrange(0, 10):
-            map[j].append(random.uniform(0.0,1.0))
-
+    map = initialize_map(17, .4)
     draw_heightmap(canvas, map)
 
     # start Tk main loop
