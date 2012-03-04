@@ -135,12 +135,14 @@ if __name__ == '__main__':
     step_size = DoubleVar()
     step_label = Label(interp_group, text = "Step size: ")
     step_label.grid(row = 0, column = 0, sticky = S)
-    step_scale = Scale(interp_group, from_ = 0.05, to = 1.0, resolution = 0.01,
+    step_scale = Scale(interp_group, from_ = 0.01, to = 1.0, resolution = 0.01,
                              orient = HORIZONTAL, variable = step_size,
                              length = canvas_width - 100,
                              command = update_canvas)
     step_scale.set(.1) # initial value
     step_scale.grid(row = 0, column = 1)
+
+    # TODO: add radio buttons for linear + cosine methods
 
     interp_group.grid(row = 4, columnspan = 2, rowspan = 2)
 
